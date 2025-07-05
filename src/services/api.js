@@ -24,9 +24,16 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    // Only redirect to login for 401 errors on protected routes
+    // Don't redirect if user is already on login/register pages
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const currentPath = window.location.pathname;
+      const isAuthPage = ['/login', '/register', '/forgot-password', '/verify-email', '/'].includes(currentPath);
+      
+      if (!isAuthPage) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
     
     // Handle network errors for MongoDB Atlas connections
