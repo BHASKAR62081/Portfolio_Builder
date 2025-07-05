@@ -6,8 +6,36 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-// All routes are protected
-router.use(auth);
+// All routes are protected except stats
+router.use((req, res, next) => {
+  // Allow stats endpoint without authentication
+  if (req.path === '/stats' && req.method === 'GET') {
+    return next();
+  }
+  // Apply auth middleware to all other routes
+  auth(req, res, next);
+});
+
+// @route   GET /api/resumes/stats
+// @desc    Get platform statistics (public endpoint)
+// @access  Public
+router.get('/stats', async (req, res) => {
+  try {
+    const totalResumes = await Resume.countDocuments();
+    const totalUsers = await User.countDocuments();
+    
+    res.json({
+      totalResumes,
+      totalUsers,
+      successRate: 95, // Static for now
+      userRating: 4.8 // Static for now
+    });
+
+  } catch (error) {
+    console.error('Get stats error:', error);
+    res.status(500).json({ message: 'Server error fetching statistics' });
+  }
+});
 
 // @route   GET /api/resumes
 // @desc    Get all resumes for the authenticated user
