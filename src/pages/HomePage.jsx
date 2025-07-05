@@ -1,36 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, FileText, Download, Users, Star } from 'lucide-react';
+import { ArrowRight, FileText, Download, Users, Star, FolderOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { resumeAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
-  const [totalResumes, setTotalResumes] = useState(0);
+  const [stats, setStats] = useState({
+    totalResumes: 0,
+    totalUsers: 0,
+    successRate: 95,
+    userRating: 4.8
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchTotalResumes();
+    fetchStats();
   }, []);
 
-  const fetchTotalResumes = async () => {
+  const fetchStats = async () => {
     try {
-      const stats = await resumeAPI.getStats();
-      setTotalResumes(stats.totalResumes || 0);
+      const data = await resumeAPI.getStats();
+      setStats(data);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
-      // Set a fallback number if API fails
-      setTotalResumes(1247);
+      // Set fallback numbers if API fails
+      setStats({
+        totalResumes: 1247,
+        totalUsers: 892,
+        successRate: 95,
+        userRating: 4.8
+      });
     }
   };
 
   const handleStartBuilding = () => {
     if (isAuthenticated) {
+      // Create a new empty resume for authenticated users
       navigate('/builder');
     } else {
       navigate('/register');
     }
+  };
+
+  const handleMyResumes = () => {
+    navigate('/profile');
   };
 
   return (
@@ -54,12 +69,19 @@ const HomePage = () => {
               onClick={handleStartBuilding}
               className="group flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
-              <span className="text-lg font-semibold">
-                {isAuthenticated ? 'Continue Building' : 'Start Building Now'}
-              </span>
+              <span className="text-lg font-semibold">Start Building</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            {!isAuthenticated && (
+            
+            {isAuthenticated ? (
+              <button
+                onClick={handleMyResumes}
+                className="flex items-center gap-2 px-8 py-4 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all duration-300"
+              >
+                <FolderOpen className="w-5 h-5" />
+                <span className="text-lg font-semibold">My Resumes</span>
+              </button>
+            ) : (
               <Link
                 to="/login"
                 className="flex items-center gap-2 px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-blue-600 hover:text-blue-600 transition-all duration-300"
@@ -111,21 +133,21 @@ const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold text-blue-600 mb-2">
-                {totalResumes.toLocaleString()}+
+                {stats.totalResumes.toLocaleString()}+
               </div>
               <div className="text-gray-600">Resumes Created</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">95%</div>
+              <div className="text-4xl font-bold text-green-600 mb-2">{stats.successRate}%</div>
               <div className="text-gray-600">Success Rate</div>
             </div>
             <div>
               <div className="flex justify-center mb-2">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
+                  <Star key={i} className={`w-6 h-6 ${i < Math.floor(stats.userRating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
                 ))}
               </div>
-              <div className="text-gray-600">User Rating</div>
+              <div className="text-gray-600">{stats.userRating}/5 User Rating</div>
             </div>
           </div>
         </div>
@@ -144,7 +166,7 @@ const HomePage = () => {
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             <span className="text-lg font-semibold">
-              {isAuthenticated ? 'Continue Building' : 'Get Started Free'}
+              {isAuthenticated ? 'Start Building' : 'Get Started Free'}
             </span>
             <ArrowRight className="w-5 h-5" />
           </button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -16,6 +16,10 @@ const LoginPage = () => {
   const { login } = useAuth();
   const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the intended destination from location state
+  const from = location.state?.from?.pathname || '/';
 
   const handleChange = (e) => {
     setFormData({
@@ -31,7 +35,9 @@ const LoginPage = () => {
     try {
       await login(formData.email, formData.password);
       showSuccess('Welcome back! Login successful.');
-      navigate('/builder');
+      
+      // Redirect to homepage after successful login
+      navigate('/');
     } catch (error) {
       showError(error.message || 'Login failed. Please try again.');
     } finally {

@@ -48,7 +48,9 @@ const BuilderPage = () => {
       setCurrentResumeId(resumeId);
       loadSpecificResume(resumeId);
     } else {
-      loadResumeData();
+      // For new resumes, start with fresh data
+      setResumeData(initialData);
+      setResumeTitle('New Resume');
     }
   }, []);
 
@@ -83,32 +85,21 @@ const BuilderPage = () => {
     }
   };
 
-  // Load resume data from MongoDB on component mount
-  const loadResumeData = async () => {
-    if (isOnline) {
-      try {
-        const cloudData = await resumeAPI.getResumeData();
-        if (cloudData && Object.keys(cloudData).length > 0) {
-          setResumeData(cloudData);
-          setLastSaved(new Date());
-        }
-      } catch (error) {
-        console.error('Failed to load resume data from cloud:', error);
-        // Continue with local data if cloud load fails
-      }
-    }
-  };
-
   // Auto-save to cloud every 30 seconds if online
   useEffect(() => {
-    if (!isOnline || !currentResumeId) return;
+    if (!isOnline) return;
 
     const autoSave = setInterval(async () => {
       try {
-        await resumeAPI.updateResume(currentResumeId, {
-          title: resumeTitle,
-          data: resumeData
-        });
+        if (currentResumeId) {
+          await resumeAPI.updateResume(currentResumeId, {
+            title: resumeTitle,
+            data: resumeData
+          });
+        } else {
+          // For new resumes without ID, save to general resume data
+          await resumeAPI.saveResumeData(resumeData);
+        }
         setLastSaved(new Date());
       } catch (error) {
         console.error('Auto-save failed:', error);
@@ -149,11 +140,17 @@ const BuilderPage = () => {
             data: resumeData
           });
         } else {
-          // Save to user's general resume data
-          await resumeAPI.saveResumeData(resumeData);
+          // Create new resume
+          const newResume = await resumeAPI.createResume({
+            title: resumeTitle,
+            data: resumeData
+          });
+          setCurrentResumeId(newResume.resume._id);
+          // Update URL to include the new resume ID
+          window.history.replaceState({}, '', `/builder?resumeId=${newResume.resume._id}`);
         }
         setLastSaved(new Date());
-        showSuccess('Resume saved to cloud successfully!');
+        showSuccess('Resume saved successfully!');
       } else {
         showSuccess('Resume saved locally! Will sync when online.');
       }
