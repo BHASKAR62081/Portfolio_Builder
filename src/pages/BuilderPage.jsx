@@ -68,6 +68,14 @@ const BuilderPage = () => {
     };
   }, []);
 
+  // Make resume data available globally for PDF generation
+  useEffect(() => {
+    window.currentResumeData = resumeData;
+    return () => {
+      delete window.currentResumeData;
+    };
+  }, [resumeData]);
+
   // Load specific resume by ID
   const loadSpecificResume = async (resumeId) => {
     if (isOnline) {
@@ -119,7 +127,8 @@ const BuilderPage = () => {
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
     try {
-      await generatePDF('resume-preview', `${resumeData.personalInfo.fullName || resumeTitle}.pdf`);
+      const fileName = `${resumeData.personalInfo.fullName || resumeTitle}.pdf`;
+      await generatePDF('resume-preview', fileName);
       showSuccess('PDF downloaded successfully!');
     } catch (error) {
       console.error('Failed to generate PDF:', error);

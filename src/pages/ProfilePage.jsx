@@ -64,121 +64,20 @@ const ProfilePage = () => {
 
   const handleDownloadPDF = async (resume) => {
     try {
-      // Create a temporary preview element
-      const tempDiv = document.createElement('div');
-      tempDiv.id = 'temp-resume-preview';
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.width = '210mm';
-      tempDiv.style.backgroundColor = 'white';
-      tempDiv.style.padding = '20mm';
+      // Set global resume data for PDF generation
+      window.currentResumeData = resume.data;
       
-      // Generate resume HTML content
-      const resumeHTML = generateResumeHTML(resume.data);
-      tempDiv.innerHTML = resumeHTML;
-      
-      document.body.appendChild(tempDiv);
-      
-      // Generate PDF
       const fileName = `${resume.data?.personalInfo?.fullName || resume.title || 'resume'}.pdf`;
       await generatePDF('temp-resume-preview', fileName);
       
-      // Clean up
-      document.body.removeChild(tempDiv);
       showSuccess('PDF downloaded successfully!');
     } catch (error) {
       console.error('Failed to generate PDF:', error);
       showError('Failed to generate PDF');
+    } finally {
+      // Clean up global data
+      delete window.currentResumeData;
     }
-  };
-
-  const generateResumeHTML = (data) => {
-    if (!data) return '<p>No resume data available</p>';
-    
-    const { personalInfo = {}, experience = [], education = [], skills = [], projects = [] } = data;
-    
-    return `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        <!-- Header -->
-        <div style="border-bottom: 2px solid #2563eb; padding-bottom: 20px; margin-bottom: 20px;">
-          <h1 style="font-size: 28px; margin: 0; color: #1f2937;">${personalInfo.fullName || 'Your Name'}</h1>
-          <div style="margin-top: 10px; font-size: 14px; color: #6b7280;">
-            ${personalInfo.email ? `📧 ${personalInfo.email}` : ''}
-            ${personalInfo.phone ? ` | 📞 ${personalInfo.phone}` : ''}
-            ${personalInfo.location ? ` | 📍 ${personalInfo.location}` : ''}
-          </div>
-        </div>
-
-        ${personalInfo.summary ? `
-        <!-- Summary -->
-        <div style="margin-bottom: 25px;">
-          <h2 style="font-size: 18px; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;">Professional Summary</h2>
-          <p style="margin: 10px 0;">${personalInfo.summary}</p>
-        </div>
-        ` : ''}
-
-        ${experience.length > 0 ? `
-        <!-- Experience -->
-        <div style="margin-bottom: 25px;">
-          <h2 style="font-size: 18px; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;">Professional Experience</h2>
-          ${experience.map(exp => `
-            <div style="margin: 15px 0; padding-left: 15px; border-left: 2px solid #3b82f6;">
-              <div style="display: flex; justify-content: space-between; align-items: start;">
-                <h3 style="margin: 0; font-size: 16px; color: #1f2937;">${exp.position || ''}</h3>
-                <span style="font-size: 12px; color: #6b7280;">${exp.startDate || ''} - ${exp.current ? 'Present' : exp.endDate || ''}</span>
-              </div>
-              <p style="margin: 5px 0; color: #2563eb; font-weight: 500;">${exp.company || ''}</p>
-              ${exp.location ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">${exp.location}</p>` : ''}
-              ${exp.description ? `<p style="margin: 10px 0; font-size: 14px;">${exp.description}</p>` : ''}
-            </div>
-          `).join('')}
-        </div>
-        ` : ''}
-
-        ${education.length > 0 ? `
-        <!-- Education -->
-        <div style="margin-bottom: 25px;">
-          <h2 style="font-size: 18px; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;">Education</h2>
-          ${education.map(edu => `
-            <div style="margin: 15px 0; padding-left: 15px; border-left: 2px solid #10b981;">
-              <div style="display: flex; justify-content: space-between; align-items: start;">
-                <h3 style="margin: 0; font-size: 16px; color: #1f2937;">${edu.degree || ''} in ${edu.field || ''}</h3>
-                <span style="font-size: 12px; color: #6b7280;">${edu.startDate || ''} - ${edu.endDate || ''}</span>
-              </div>
-              <p style="margin: 5px 0; color: #2563eb; font-weight: 500;">${edu.institution || ''}</p>
-              ${edu.gpa ? `<p style="margin: 5px 0; font-size: 12px; color: #6b7280;">GPA: ${edu.gpa}</p>` : ''}
-            </div>
-          `).join('')}
-        </div>
-        ` : ''}
-
-        ${skills.length > 0 ? `
-        <!-- Skills -->
-        <div style="margin-bottom: 25px;">
-          <h2 style="font-size: 18px; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;">Skills</h2>
-          <div style="margin: 10px 0;">
-            ${skills.map(skill => `
-              <span style="display: inline-block; background: #f3f4f6; color: #374151; padding: 4px 8px; margin: 2px; border-radius: 4px; font-size: 12px;">${skill.name || ''}</span>
-            `).join('')}
-          </div>
-        </div>
-        ` : ''}
-
-        ${projects.length > 0 ? `
-        <!-- Projects -->
-        <div style="margin-bottom: 25px;">
-          <h2 style="font-size: 18px; color: #1f2937; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;">Projects</h2>
-          ${projects.map(project => `
-            <div style="margin: 15px 0; padding-left: 15px; border-left: 2px solid #8b5cf6;">
-              <h3 style="margin: 0; font-size: 16px; color: #1f2937;">${project.name || ''}</h3>
-              ${project.description ? `<p style="margin: 10px 0; font-size: 14px;">${project.description}</p>` : ''}
-              ${project.technologies ? `<p style="margin: 5px 0; color: #2563eb; font-size: 12px;">Technologies: ${project.technologies}</p>` : ''}
-            </div>
-          `).join('')}
-        </div>
-        ` : ''}
-      </div>
-    `;
   };
 
   const handleDeleteResume = async (id) => {
@@ -266,6 +165,11 @@ const ProfilePage = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Hidden element for PDF generation */}
+        <div id="temp-resume-preview" style={{ position: 'absolute', left: '-9999px', width: '210mm', backgroundColor: 'white', padding: '20mm' }}>
+          {/* This will be populated dynamically during PDF generation */}
         </div>
 
         {/* Resumes Grid */}
