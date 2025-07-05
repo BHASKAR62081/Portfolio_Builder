@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Save, Cloud, CloudOff } from 'lucide-react';
+import { Download, Save, Cloud, CloudOff, ArrowLeft } from 'lucide-react';
 import { SectionHeader } from '../components/SectionHeader';
 import { PersonalInfoSection } from '../components/PersonalInfoSection';
 import { ExperienceSection } from '../components/ExperienceSection';
@@ -36,7 +36,21 @@ const BuilderPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [lastSaved, setLastSaved] = useState(null);
+  const [currentResumeId, setCurrentResumeId] = useState(null);
+  const [resumeTitle, setResumeTitle] = useState('Untitled Resume');
   const { showSuccess, showError } = useToast();
+
+  // Get resume ID from URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const resumeId = urlParams.get('resumeId');
+    if (resumeId) {
+      setCurrentResumeId(resumeId);
+      loadSpecificResume(resumeId);
+    } else {
+      loadResumeData();
+    }
+  }, []);
 
   // Monitor online status
   useEffect(() => {
@@ -52,33 +66,49 @@ const BuilderPage = () => {
     };
   }, []);
 
-  // Load resume data from MongoDB on component mount
-  useEffect(() => {
-    const loadResumeData = async () => {
-      if (isOnline) {
-        try {
-          const cloudData = await resumeAPI.getResumeData();
-          if (cloudData && Object.keys(cloudData).length > 0) {
-            setResumeData(cloudData);
-            setLastSaved(new Date());
-          }
-        } catch (error) {
-          console.error('Failed to load resume data from cloud:', error);
-          // Continue with local data if cloud load fails
+  // Load specific resume by ID
+  const loadSpecificResume = async (resumeId) => {
+    if (isOnline) {
+      try {
+        const resume = await resumeAPI.getResume(resumeId);
+        if (resume && resume.data) {
+          setResumeData(resume.data);
+          setResumeTitle(resume.title || 'Untitled Resume');
+          setLastSaved(new Date(resume.updatedAt));
         }
+      } catch (error) {
+        console.error('Failed to load specific resume:', error);
+        showError('Failed to load resume');
       }
-    };
+    }
+  };
 
-    loadResumeData();
-  }, [isOnline]);
+  // Load resume data from MongoDB on component mount
+  const loadResumeData = async () => {
+    if (isOnline) {
+      try {
+        const cloudData = await resumeAPI.getResumeData();
+        if (cloudData && Object.keys(cloudData).length > 0) {
+          setResumeData(cloudData);
+          setLastSaved(new Date());
+        }
+      } catch (error) {
+        console.error('Failed to load resume data from cloud:', error);
+        // Continue with local data if cloud load fails
+      }
+    }
+  };
 
   // Auto-save to cloud every 30 seconds if online
   useEffect(() => {
-    if (!isOnline) return;
+    if (!isOnline || !currentResumeId) return;
 
     const autoSave = setInterval(async () => {
       try {
-        await resumeAPI.saveResumeData(resumeData);
+        await resumeAPI.updateResume(currentResumeId, {
+          title: resumeTitle,
+          data: resumeData
+        });
         setLastSaved(new Date());
       } catch (error) {
         console.error('Auto-save failed:', error);
@@ -86,7 +116,7 @@ const BuilderPage = () => {
     }, 30000); // 30 seconds
 
     return () => clearInterval(autoSave);
-  }, [resumeData, isOnline]);
+  }, [resumeData, resumeTitle, currentResumeId, isOnline]);
 
   const toggleSection = (section) => {
     setCollapsedSections(prev => ({
@@ -98,7 +128,7 @@ const BuilderPage = () => {
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
     try {
-      await generatePDF('resume-preview', `${resumeData.personalInfo.fullName || 'resume'}.pdf`);
+      await generatePDF('resume-preview', `${resumeData.personalInfo.fullName || resumeTitle}.pdf`);
       showSuccess('PDF downloaded successfully!');
     } catch (error) {
       console.error('Failed to generate PDF:', error);
@@ -112,7 +142,16 @@ const BuilderPage = () => {
     setIsSaving(true);
     try {
       if (isOnline) {
-        await resumeAPI.saveResumeData(resumeData);
+        if (currentResumeId) {
+          // Update existing resume
+          await resumeAPI.updateResume(currentResumeId, {
+            title: resumeTitle,
+            data: resumeData
+          });
+        } else {
+          // Save to user's general resume data
+          await resumeAPI.saveResumeData(resumeData);
+        }
         setLastSaved(new Date());
         showSuccess('Resume saved to cloud successfully!');
       } else {
@@ -124,6 +163,10 @@ const BuilderPage = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleBackToProfile = () => {
+    window.location.href = '/profile';
   };
 
   const formatLastSaved = () => {
@@ -138,17 +181,34 @@ const BuilderPage = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">Resume Builder</h1>
-            <div className="flex items-center gap-2 mt-1">
-              {isOnline ? (
-                <Cloud className="w-4 h-4 text-green-600" />
-              ) : (
-                <CloudOff className="w-4 h-4 text-red-600" />
-              )}
-              <span className="text-sm text-gray-600">
-                {isOnline ? 'Online' : 'Offline'} • Last saved: {formatLastSaved()}
-              </span>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleBackToProfile}
+              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Profile
+            </button>
+            <div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={resumeTitle}
+                  onChange={(e) => setResumeTitle(e.target.value)}
+                  className="text-2xl font-bold text-gray-800 bg-transparent border-none outline-none focus:bg-white focus:border focus:border-gray-300 focus:rounded px-2 py-1"
+                  placeholder="Resume Title"
+                />
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                {isOnline ? (
+                  <Cloud className="w-4 h-4 text-green-600" />
+                ) : (
+                  <CloudOff className="w-4 h-4 text-red-600" />
+                )}
+                <span className="text-sm text-gray-600">
+                  {isOnline ? 'Online' : 'Offline'} • Last saved: {formatLastSaved()}
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
