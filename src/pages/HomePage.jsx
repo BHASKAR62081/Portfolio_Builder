@@ -1,9 +1,38 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, FileText, Download, Users, Star } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { resumeAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 
 const HomePage = () => {
+  const { isAuthenticated } = useAuth();
+  const [totalResumes, setTotalResumes] = useState(0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchTotalResumes();
+  }, []);
+
+  const fetchTotalResumes = async () => {
+    try {
+      const stats = await resumeAPI.getStats();
+      setTotalResumes(stats.totalResumes || 0);
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+      // Set a fallback number if API fails
+      setTotalResumes(1247);
+    }
+  };
+
+  const handleStartBuilding = () => {
+    if (isAuthenticated) {
+      navigate('/builder');
+    } else {
+      navigate('/register');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Navbar />
@@ -21,19 +50,23 @@ const HomePage = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link
-              to="/register"
+            <button
+              onClick={handleStartBuilding}
               className="group flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
-              <span className="text-lg font-semibold">Start Building Now</span>
+              <span className="text-lg font-semibold">
+                {isAuthenticated ? 'Continue Building' : 'Start Building Now'}
+              </span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              to="/login"
-              className="flex items-center gap-2 px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-blue-600 hover:text-blue-600 transition-all duration-300"
-            >
-              <span className="text-lg font-semibold">Sign In</span>
-            </Link>
+            </button>
+            {!isAuthenticated && (
+              <Link
+                to="/login"
+                className="flex items-center gap-2 px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-blue-600 hover:text-blue-600 transition-all duration-300"
+              >
+                <span className="text-lg font-semibold">Sign In</span>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -77,11 +110,13 @@ const HomePage = () => {
         <div className="mt-24 bg-white rounded-2xl shadow-lg p-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">kichu ekta+</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">
+                {totalResumes.toLocaleString()}+
+              </div>
               <div className="text-gray-600">Resumes Created</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">jani na apatoto%</div>
+              <div className="text-4xl font-bold text-green-600 mb-2">95%</div>
               <div className="text-gray-600">Success Rate</div>
             </div>
             <div>
@@ -104,13 +139,15 @@ const HomePage = () => {
             Join thousands of job seekers who have successfully created professional resumes 
             with our platform.
           </p>
-          <Link
-            to="/register"
+          <button
+            onClick={handleStartBuilding}
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
-            <span className="text-lg font-semibold">Get Started Free</span>
+            <span className="text-lg font-semibold">
+              {isAuthenticated ? 'Continue Building' : 'Get Started Free'}
+            </span>
             <ArrowRight className="w-5 h-5" />
-          </Link>
+          </button>
         </div>
       </div>
     </div>

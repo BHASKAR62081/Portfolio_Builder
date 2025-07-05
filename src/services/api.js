@@ -49,6 +49,7 @@ export const authAPI = {
 };
 
 export const resumeAPI = {
+  getStats: () => api.get('/resumes/stats'),
   getResumes: () => api.get('/resumes'),
   getResume: (id) => api.get(`/resumes/${id}`),
   createResume: (data) => api.post('/resumes', data),
