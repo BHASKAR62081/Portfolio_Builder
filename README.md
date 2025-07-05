@@ -44,7 +44,7 @@ npm install
 
 2. Create environment file:
 ```bash
-cp .env.example .env
+code .env
 ```
 
 3. Update the `.env` file with your backend URL:
