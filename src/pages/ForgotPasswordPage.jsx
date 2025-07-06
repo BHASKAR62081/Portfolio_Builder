@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -12,6 +12,7 @@ const ForgotPasswordPage = () => {
   
   const { forgotPassword } = useAuth();
   const { showSuccess, showError } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,9 +21,11 @@ const ForgotPasswordPage = () => {
     try {
       await forgotPassword(email);
       setSent(true);
-      showSuccess('Password reset instructions sent to your email.');
+      showSuccess('Password reset OTP sent to your email.');
+      // Navigate to reset password page with email
+      navigate('/reset-password', { state: { email } });
     } catch (error) {
-      showError(error.message || 'Failed to send reset email. Please try again.');
+      showError(error.message || 'Failed to send reset OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -39,20 +42,13 @@ const ForgotPasswordPage = () => {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Mail className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Check Your Email</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">OTP Sent!</h2>
               <p className="text-gray-600 mb-6">
-                We've sent password reset instructions to <strong>{email}</strong>
+                We've sent a password reset OTP to <strong>{email}</strong>
               </p>
               <p className="text-sm text-gray-500 mb-8">
-                Didn't receive the email? Check your spam folder or try again.
+                Redirecting you to enter the OTP and set your new password...
               </p>
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Sign In
-              </Link>
             </div>
           </div>
         </div>
@@ -70,7 +66,7 @@ const ForgotPasswordPage = () => {
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">Forgot Password?</h2>
               <p className="text-gray-600">
-                Enter your email address and we'll send you instructions to reset your password.
+                Enter your email address and we'll send you an OTP to reset your password.
               </p>
             </div>
 
@@ -97,7 +93,7 @@ const ForgotPasswordPage = () => {
                 disabled={loading}
                 className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Sending...' : 'Send Reset Instructions'}
+                {loading ? 'Sending OTP...' : 'Send Reset OTP'}
               </button>
             </form>
 
