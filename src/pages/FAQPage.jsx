@@ -44,6 +44,10 @@ const FAQPage = () => {
     {
       question: "What if I forget my password?",
       answer: "You can reset your password using the 'Forgot Password' link on the login page. We'll send you a secure reset link via email."
+    },
+    {
+      question: "Any unusual problems faced",
+      answer: "Reach out to us at our Service Desk"
     }
   ];
 
