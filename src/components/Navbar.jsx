@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, User, LogOut, FileIcon, HelpCircle, Mail, ChevronDown } from 'lucide-react';
+import { FileText, User, LogOut, FileIcon, HomeIcon, HelpCircle, Mail, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
@@ -62,6 +62,15 @@ const Navbar = () => {
                       <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
                     
+                    <Link
+                      to="/"
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <HomeIcon className="w-4 h-4" />
+                      Dashboard
+                    </Link>
+
                     <Link
                       to="/profile"
                       className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
