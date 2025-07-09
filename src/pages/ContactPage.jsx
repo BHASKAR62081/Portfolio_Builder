@@ -87,7 +87,6 @@ const ContactPage = () => {
               </div>
             </div>
 
-            <div className="mt-8 p-6 bg-blue-50 rounded-lg">
             <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <h3 className="font-medium text-gray-900 dark:text-white mb-2">Business Hours</h3>
               <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
@@ -96,6 +95,7 @@ const ContactPage = () => {
                 <p>Sunday: Closed</p>
               </div>
             </div>
+          </div>
           </div>
 
           {/* Contact Form */}
