@@ -84,7 +84,6 @@ const FAQPage = () => {
           ))}
         </div>
 
-        <div className="mt-12 bg-blue-50 rounded-lg p-8 text-center">
         <div className="mt-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-8 text-center">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Still have questions?</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
