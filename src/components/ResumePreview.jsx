@@ -18,13 +18,13 @@ export const ResumePreview = ({ data }) => {
   }, {});
 
   return (
-    <div id="resume-preview" className="bg-white p-8 shadow-lg min-h-full">
+    <div id="resume-preview" className="bg-white dark:bg-gray-800 p-8 shadow-lg min-h-full">
       {/* Header */}
-      <div className="border-b-2 border-blue-600 pb-6 mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+      <div className="border-b-2 border-blue-600 dark:border-blue-400 pb-6 mb-6">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
           {data.personalInfo.fullName || 'Your Name'}
         </h1>
-        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+        <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-300">
           {data.personalInfo.email && (
             <div className="flex items-center gap-1">
               <Mail className="w-4 h-4" />
@@ -61,30 +61,30 @@ export const ResumePreview = ({ data }) => {
       {/* Professional Summary */}
       {data.personalInfo.summary && (
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-3">Professional Summary</h2>
-          <p className="text-gray-700 leading-relaxed">{data.personalInfo.summary}</p>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">Professional Summary</h2>
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{data.personalInfo.summary}</p>
         </div>
       )}
 
       {/* Experience */}
       {data.experience.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Professional Experience</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Professional Experience</h2>
           <div className="space-y-4">
             {data.experience.map((exp) => (
               <div key={exp.id} className="border-l-2 border-blue-200 pl-4">
                 <div className="flex justify-between items-start mb-1">
-                  <h3 className="text-lg font-medium text-gray-800">{exp.position}</h3>
-                  <span className="text-sm text-gray-600">
+                  <h3 className="text-lg font-medium text-gray-800 dark:text-white">{exp.position}</h3>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-blue-600 font-medium">{exp.company}</p>
-                  {exp.location && <span className="text-sm text-gray-600">{exp.location}</span>}
+                  <p className="text-blue-600 dark:text-blue-400 font-medium">{exp.company}</p>
+                  {exp.location && <span className="text-sm text-gray-600 dark:text-gray-400">{exp.location}</span>}
                 </div>
                 {exp.description && (
-                  <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{exp.description}</p>
                 )}
               </div>
             ))}
@@ -95,22 +95,22 @@ export const ResumePreview = ({ data }) => {
       {/* Education */}
       {data.education.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Education</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Education</h2>
           <div className="space-y-3">
             {data.education.map((edu) => (
               <div key={edu.id} className="border-l-2 border-green-200 pl-4">
                 <div className="flex justify-between items-start mb-1">
-                  <h3 className="text-lg font-medium text-gray-800">{edu.degree} in {edu.field}</h3>
-                  <span className="text-sm text-gray-600">
+                  <h3 className="text-lg font-medium text-gray-800 dark:text-white">{edu.degree} in {edu.field}</h3>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {formatDate(edu.startDate)} - {formatDate(edu.endDate)}
                   </span>
                 </div>
-                <p className="text-blue-600 font-medium mb-1">{edu.institution}</p>
+                <p className="text-blue-600 dark:text-blue-400 font-medium mb-1">{edu.institution}</p>
                 {edu.gpa && (
-                  <p className="text-sm text-gray-600 mb-1">GPA: {edu.gpa}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">GPA: {edu.gpa}</p>
                 )}
                 {edu.achievements && (
-                  <p className="text-gray-700 text-sm">{edu.achievements}</p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">{edu.achievements}</p>
                 )}
               </div>
             ))}
@@ -121,11 +121,11 @@ export const ResumePreview = ({ data }) => {
       {/* Skills */}
       {Object.keys(skillsByCategory).length > 0 && (
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Skills</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Skills</h2>
           <div className="space-y-3">
             {Object.entries(skillsByCategory).map(([category, skills]) => (
               <div key={category}>
-                <h3 className="text-md font-medium text-gray-700 mb-2">{category}</h3>
+                <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">{category}</h3>
                 <div className="flex flex-wrap gap-2">
                   {skills.map((skill) => (
                     <span
@@ -153,12 +153,12 @@ export const ResumePreview = ({ data }) => {
       {/* Projects */}
       {data.projects.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Projects</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Projects</h2>
           <div className="space-y-4">
             {data.projects.map((project) => (
               <div key={project.id} className="border-l-2 border-purple-200 pl-4">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-lg font-medium text-gray-800">{project.name}</h3>
+                  <h3 className="text-lg font-medium text-gray-800 dark:text-white">{project.name}</h3>
                   <div className="flex gap-2">
                     {project.link && (
                       <ExternalLink className="w-4 h-4 text-blue-600 cursor-pointer" />
@@ -168,9 +168,9 @@ export const ResumePreview = ({ data }) => {
                     )}
                   </div>
                 </div>
-                <p className="text-gray-700 text-sm mb-2">{project.description}</p>
+                <p className="text-gray-700 dark:text-gray-300 text-sm mb-2">{project.description}</p>
                 {project.technologies && (
-                  <p className="text-blue-600 text-sm font-medium">
+                  <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                     Technologies: {project.technologies}
                   </p>
                 )}

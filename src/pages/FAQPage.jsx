@@ -52,32 +52,32 @@ const FAQPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <Navbar />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
-          <p className="text-xl text-gray-600">Find answers to common questions about our resume builder</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Frequently Asked Questions</h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300">Find answers to common questions about our resume builder</p>
         </div>
 
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => toggleItem(index)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
-                <h3 className="text-lg font-medium text-gray-900">{faq.question}</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">{faq.question}</h3>
                 {openItems[index] ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                  <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                  <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 )}
               </button>
               {openItems[index] && (
-                <div className="px-6 pb-4 border-t border-gray-100">
-                  <p className="text-gray-700 leading-relaxed pt-4">{faq.answer}</p>
+                <div className="px-6 pb-4 border-t border-gray-100 dark:border-gray-700">
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed pt-4">{faq.answer}</p>
                 </div>
               )}
             </div>
@@ -85,13 +85,14 @@ const FAQPage = () => {
         </div>
 
         <div className="mt-12 bg-blue-50 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Still have questions?</h2>
-          <p className="text-gray-600 mb-6">
+        <div className="mt-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-8 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Still have questions?</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Can't find the answer you're looking for? Our support team is here to help.
           </p>
           <a
             href="/contact"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
           >
             Contact Support
           </a>
