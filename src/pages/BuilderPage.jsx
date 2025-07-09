@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Save, Cloud, CloudOff, ArrowLeft } from 'lucide-react';
+import { Download, Save, Cloud, CloudOff, ArrowLeft, Edit2, Check, X } from 'lucide-react';
 import { SectionHeader } from '../components/SectionHeader';
 import { PersonalInfoSection } from '../components/PersonalInfoSection';
 import { ExperienceSection } from '../components/ExperienceSection';
@@ -38,6 +38,8 @@ const BuilderPage = () => {
   const [lastSaved, setLastSaved] = useState(null);
   const [currentResumeId, setCurrentResumeId] = useState(null);
   const [resumeTitle, setResumeTitle] = useState('Untitled Resume');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [tempTitle, setTempTitle] = useState('');
   const { showSuccess, showError } = useToast();
 
   // Get resume ID from URL params
@@ -175,13 +177,38 @@ const BuilderPage = () => {
     window.location.href = '/profile';
   };
 
+  const handleEditTitle = () => {
+    setTempTitle(resumeTitle);
+    setIsEditingTitle(true);
+  };
+
+  const handleSaveTitle = () => {
+    if (tempTitle.trim()) {
+      setResumeTitle(tempTitle.trim());
+      setIsEditingTitle(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setTempTitle('');
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSaveTitle();
+    } else if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
+
   const formatLastSaved = () => {
     if (!lastSaved) return 'Never';
     return lastSaved.toLocaleTimeString();
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <Navbar />
 
       {/* Main Content */}
@@ -197,13 +224,41 @@ const BuilderPage = () => {
             </button>
             <div>
               <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={resumeTitle}
-                  onChange={(e) => setResumeTitle(e.target.value)}
-                  className="text-2xl font-bold text-gray-800 bg-transparent border-none outline-none focus:bg-white focus:border focus:border-gray-300 focus:rounded px-2 py-1"
-                  placeholder="Resume Title"
-                />
+                {isEditingTitle ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={tempTitle}
+                      onChange={(e) => setTempTitle(e.target.value)}
+                      onKeyDown={handleTitleKeyPress}
+                      className="text-2xl font-bold text-gray-800 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Resume Title"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleSaveTitle}
+                      className="p-1 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 rounded transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="p-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{resumeTitle}</h1>
+                    <button
+                      onClick={handleEditTitle}
+                      className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-2 mt-1">
                 {isOnline ? (
@@ -211,7 +266,7 @@ const BuilderPage = () => {
                 ) : (
                   <CloudOff className="w-4 h-4 text-red-600" />
                 )}
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
                   {isOnline ? 'Online' : 'Offline'} • Last saved: {formatLastSaved()}
                 </span>
               </div>
@@ -238,8 +293,8 @@ const BuilderPage = () => {
         </div>
 
         {!isOnline && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-yellow-800 text-sm">
+          <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <p className="text-yellow-800 dark:text-yellow-200 text-sm">
               You're currently offline. Changes are being saved locally and will sync when you're back online.
             </p>
           </div>
@@ -248,7 +303,7 @@ const BuilderPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Panel - Form */}
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               {/* Personal Information */}
               <SectionHeader
                 title="Personal Information"
@@ -313,9 +368,9 @@ const BuilderPage = () => {
 
           {/* Right Panel - Preview */}
           <div className="lg:sticky lg:top-8">
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="bg-gray-100 px-4 py-3 border-b">
-                <h3 className="text-lg font-medium text-gray-800">Live Preview</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+              <div className="bg-gray-100 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600">
+                <h3 className="text-lg font-medium text-gray-800 dark:text-white">Live Preview</h3>
               </div>
               <div className="max-h-screen overflow-y-auto">
                 <ResumePreview data={resumeData} />

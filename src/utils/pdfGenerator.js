@@ -1,14 +1,18 @@
 import jsPDF from 'jspdf';
 
 export const generatePDF = async (elementId, filename = 'resume.pdf') => {
-  const element = document.getElementById(elementId);
-  if (!element) {
-    throw new Error('Element not found');
-  }
-
   try {
-    // Get resume data from the element's data attributes or parse from DOM
-    const resumeData = parseResumeFromDOM(element);
+    // Get resume data from global variable or parse from DOM
+    let resumeData;
+    if (window.currentResumeData) {
+      resumeData = window.currentResumeData;
+    } else {
+      const element = document.getElementById(elementId);
+      if (!element) {
+        throw new Error('Element not found and no resume data available');
+      }
+      resumeData = parseResumeFromDOM(element);
+    }
     
     // Create PDF with text content
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -56,17 +60,17 @@ export const generatePDF = async (elementId, filename = 'resume.pdf') => {
     
     // Header Section
     if (resumeData.personalInfo.fullName) {
-      addText(resumeData.personalInfo.fullName, 20, true, [31, 41, 55]);
+      addText(resumeData.personalInfo.fullName.toString(), 20, true, [31, 41, 55]);
       yPosition += 3;
     }
     
     // Contact Information
     const contactInfo = [];
-    if (resumeData.personalInfo.email) contactInfo.push(`📧 ${resumeData.personalInfo.email}`);
-    if (resumeData.personalInfo.phone) contactInfo.push(`📞 ${resumeData.personalInfo.phone}`);
-    if (resumeData.personalInfo.location) contactInfo.push(`📍 ${resumeData.personalInfo.location}`);
-    if (resumeData.personalInfo.linkedin) contactInfo.push(`💼 LinkedIn`);
-    if (resumeData.personalInfo.website) contactInfo.push(`🌐 Portfolio`);
+    if (resumeData.personalInfo.email) contactInfo.push(`Email: ${resumeData.personalInfo.email}`);
+    if (resumeData.personalInfo.phone) contactInfo.push(`Phone: ${resumeData.personalInfo.phone}`);
+    if (resumeData.personalInfo.location) contactInfo.push(`Location: ${resumeData.personalInfo.location}`);
+    if (resumeData.personalInfo.linkedin) contactInfo.push(`LinkedIn: ${resumeData.personalInfo.linkedin}`);
+    if (resumeData.personalInfo.website) contactInfo.push(`Website: ${resumeData.personalInfo.website}`);
     
     if (contactInfo.length > 0) {
       addText(contactInfo.join(' | '), 9, false, [107, 114, 128]);
@@ -79,7 +83,7 @@ export const generatePDF = async (elementId, filename = 'resume.pdf') => {
     if (resumeData.personalInfo.summary) {
       addText('PROFESSIONAL SUMMARY', 14, true, [59, 130, 246]);
       yPosition += 2;
-      addText(resumeData.personalInfo.summary, 10);
+      addText(resumeData.personalInfo.summary.toString(), 10);
       yPosition += 5;
     }
     
@@ -91,15 +95,15 @@ export const generatePDF = async (elementId, filename = 'resume.pdf') => {
       resumeData.experience.forEach((exp, index) => {
         // Position and dates
         const dateRange = `${formatDate(exp.startDate)} - ${exp.current ? 'Present' : formatDate(exp.endDate)}`;
-        addText(`${exp.position || 'Position'} | ${dateRange}`, 11, true);
+        addText(`${(exp.position || 'Position').toString()} | ${dateRange}`, 11, true);
         
         // Company and location
-        const companyInfo = exp.location ? `${exp.company} | ${exp.location}` : exp.company;
+        const companyInfo = exp.location ? `${(exp.company || '').toString()} | ${exp.location.toString()}` : (exp.company || '').toString();
         addText(companyInfo, 10, false, [59, 130, 246]);
         
         // Description
         if (exp.description) {
-          addText(exp.description, 10);
+          addText(exp.description.toString(), 10);
         }
         
         if (index < resumeData.experience.length - 1) {
@@ -116,21 +120,21 @@ export const generatePDF = async (elementId, filename = 'resume.pdf') => {
       
       resumeData.education.forEach((edu, index) => {
         // Degree and dates
-        const degree = `${edu.degree || 'Degree'} in ${edu.field || 'Field'}`;
+        const degree = `${(edu.degree || 'Degree').toString()} in ${(edu.field || 'Field').toString()}`;
         const dateRange = `${formatDate(edu.startDate)} - ${formatDate(edu.endDate)}`;
         addText(`${degree} | ${dateRange}`, 11, true);
         
         // Institution
-        addText(edu.institution || 'Institution', 10, false, [59, 130, 246]);
+        addText((edu.institution || 'Institution').toString(), 10, false, [59, 130, 246]);
         
         // GPA
         if (edu.gpa) {
-          addText(`GPA: ${edu.gpa}`, 9, false, [107, 114, 128]);
+          addText(`GPA: ${edu.gpa.toString()}`, 9, false, [107, 114, 128]);
         }
         
         // Achievements
         if (edu.achievements) {
-          addText(edu.achievements, 10);
+          addText(edu.achievements.toString(), 10);
         }
         
         if (index < resumeData.education.length - 1) {
@@ -147,14 +151,14 @@ export const generatePDF = async (elementId, filename = 'resume.pdf') => {
       
       // Group skills by category
       const skillsByCategory = resumeData.skills.reduce((acc, skill) => {
-        const category = skill.category || 'Other';
+        const category = (skill.category || 'Other').toString();
         if (!acc[category]) acc[category] = [];
-        acc[category].push(skill.name);
+        acc[category].push((skill.name || '').toString());
         return acc;
       }, {});
       
       Object.entries(skillsByCategory).forEach(([category, skills]) => {
-        addText(`${category}:`, 10, true);
+        addText(`${category.toString()}:`, 10, true);
         addText(skills.join(' • '), 10);
         yPosition += 2;
       });
@@ -168,22 +172,22 @@ export const generatePDF = async (elementId, filename = 'resume.pdf') => {
       
       resumeData.projects.forEach((project, index) => {
         // Project name
-        addText(project.name || 'Project Name', 11, true);
+        addText((project.name || 'Project Name').toString(), 11, true);
         
         // Description
         if (project.description) {
-          addText(project.description, 10);
+          addText(project.description.toString(), 10);
         }
         
         // Technologies
         if (project.technologies) {
-          addText(`Technologies: ${project.technologies}`, 9, false, [59, 130, 246]);
+          addText(`Technologies: ${project.technologies.toString()}`, 9, false, [59, 130, 246]);
         }
         
         // Links
         const links = [];
-        if (project.link) links.push('🔗 Live Demo');
-        if (project.github) links.push('📁 GitHub');
+        if (project.link) links.push('Live Demo: ' + project.link.toString());
+        if (project.github) links.push('GitHub: ' + project.github.toString());
         if (links.length > 0) {
           addText(links.join(' | '), 9, false, [107, 114, 128]);
         }
@@ -204,11 +208,6 @@ export const generatePDF = async (elementId, filename = 'resume.pdf') => {
 
 // Helper function to parse resume data from DOM
 const parseResumeFromDOM = (element) => {
-  // Try to get data from a global variable first (if available)
-  if (window.currentResumeData) {
-    return window.currentResumeData;
-  }
-  
   // Fallback: parse from DOM structure
   const resumeData = {
     personalInfo: {
@@ -226,6 +225,8 @@ const parseResumeFromDOM = (element) => {
     projects: []
   };
   
+  if (!element) return resumeData;
+  
   // Parse name from h1
   const nameElement = element.querySelector('h1');
   if (nameElement) {
@@ -236,9 +237,9 @@ const parseResumeFromDOM = (element) => {
   const contactElements = element.querySelectorAll('[class*="gap-1"]');
   contactElements.forEach(el => {
     const text = el.textContent.trim();
-    if (text.includes('@')) resumeData.personalInfo.email = text;
-    if (text.includes('(') || text.includes('+')) resumeData.personalInfo.phone = text;
-    if (text.includes(',')) resumeData.personalInfo.location = text;
+    if (text.includes('@')) resumeData.personalInfo.email = text.replace(/[^\w@.-]/g, '');
+    if (text.includes('(') || text.includes('+')) resumeData.personalInfo.phone = text.replace(/[^\d\s\(\)\-\+]/g, '');
+    if (text.includes(',') && !text.includes('@')) resumeData.personalInfo.location = text;
   });
   
   // Parse summary
@@ -256,6 +257,6 @@ const parseResumeFromDOM = (element) => {
 // Helper function to format dates
 const formatDate = (dateString) => {
   if (!dateString) return '';
-  const date = new Date(dateString);
+  const date = new Date(dateString.toString());
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
 };
