@@ -71,7 +71,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="font-medium text-gray-900 dark:text-white">Phone</h3>
-                  <p className="text-gray-600 dark:text-gray-300">+1 (555) 123-4567</p>
+                  <p className="text-gray-600 dark:text-gray-300">+91 XXXXXXXXXX</p>
                 </div>
               </div>
 
@@ -81,7 +81,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="font-medium text-gray-900 dark:text-white">Office</h3>
-                  <p className="text-gray-600 dark:text-gray-300">123 Business Ave, Suite 100<br />New York, NY 10001</p>
+                  <p className="text-gray-600 dark:text-gray-300">Some address</p>
                 </div>
               </div>
             </div>
