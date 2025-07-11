@@ -10,6 +10,8 @@ dotenv.config();
 
 const app = express();
 
+app.set('trust proxy', 1); // trust first proxy
+
 // Security middleware
 app.use(helmet());
 
