@@ -2,6 +2,10 @@
 
 A modern, full-featured resume builder application built with React and designed to work with MongoDB Atlas.
 
+## Live link
+
+- https://portfolio-builder-eta-pied.vercel.app/
+
 ## Features
 
 - **User Authentication**: Complete auth system with registration, login, email verification, and password reset
