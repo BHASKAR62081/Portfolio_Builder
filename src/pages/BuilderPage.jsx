@@ -174,7 +174,16 @@ const BuilderPage = () => {
   };
 
   const handleBackToProfile = () => {
-    window.location.href = '/profile';
+    try {
+      // Save current work before navigating
+      if (resumeData && Object.keys(resumeData).length > 0) {
+        localStorage.setItem('resumeData', JSON.stringify(resumeData));
+      }
+      window.location.href = '/profile';
+    } catch (error) {
+      console.error('Navigation error:', error);
+      showError('Failed to navigate back to profile');
+    }
   };
 
   const handleEditTitle = () => {

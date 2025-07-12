@@ -61,11 +61,22 @@ const ProfilePage = () => {
   };
 
   const handleEditResume = (resumeId) => {
-    window.location.href = `/builder?resumeId=${resumeId}`;
+    try {
+      // Use React Router navigation instead of window.location
+      const url = `/builder?resumeId=${resumeId}`;
+      window.location.href = url;
+    } catch (error) {
+      console.error('Navigation error:', error);
+      showError('Failed to open resume editor');
+    }
   };
 
   const handleDownloadPDF = async (resume) => {
     try {
+      if (!resume || !resume.data) {
+        throw new Error('Resume data is not available');
+      }
+      
       // Set global resume data for PDF generation
       window.currentResumeData = resume.data;
       
@@ -75,7 +86,7 @@ const ProfilePage = () => {
       showSuccess('PDF downloaded successfully!');
     } catch (error) {
       console.error('Failed to generate PDF:', error);
-      showError('Failed to generate PDF');
+      showError(`Failed to generate PDF: ${error.message}`);
     } finally {
       // Clean up global data
       delete window.currentResumeData;
@@ -90,7 +101,7 @@ const ProfilePage = () => {
         showSuccess('Resume deleted successfully');
       } catch (error) {
         console.error('Failed to delete resume:', error);
-        showError('Failed to delete resume');
+        showError(`Failed to delete resume: ${error.message || 'Unknown error'}`);
       }
     }
   };

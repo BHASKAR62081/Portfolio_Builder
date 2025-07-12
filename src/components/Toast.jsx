@@ -38,13 +38,15 @@ const Toast = () => {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`flex items-center gap-3 p-4 rounded-lg border shadow-lg max-w-sm animate-slide-up transition-colors ${getToastStyles(toast.type)}`}
+          className={`flex items-start gap-3 p-4 rounded-lg border shadow-lg max-w-md animate-slide-up transition-colors ${getToastStyles(toast.type)}`}
         >
           {getToastIcon(toast.type)}
-          <p className="text-sm font-medium flex-1">{toast.message}</p>
+          <div className="flex-1">
+            <p className="text-sm font-medium break-words">{toast.message}</p>
+          </div>
           <button
             onClick={() => removeToast(toast.id)}
-            className="p-1 hover:bg-black hover:bg-opacity-10 dark:hover:bg-white dark:hover:bg-opacity-10 rounded transition-colors"
+            className="p-1 hover:bg-black hover:bg-opacity-10 dark:hover:bg-white dark:hover:bg-opacity-10 rounded transition-colors flex-shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
