@@ -24,10 +24,5 @@
       ]
     }
   ],
-  "functions": {
-    "src/pages/*.jsx": {
-      "maxDuration": 10
-    }
-  },
   "regions": ["bom1"]
 }
