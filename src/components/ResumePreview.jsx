@@ -1,7 +1,7 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Linkedin, Globe, ExternalLink, Github, Edit2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Globe, ExternalLink, Github } from 'lucide-react';
 
-export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading, onSaveHeading, onCancelEdit, setTempHeading }) => {
+export const ResumePreview = ({ data }) => {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -61,47 +61,7 @@ export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading
       {/* Professional Summary */}
       {data.personalInfo.summary && (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            {editingHeading === 'summary' ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={tempHeading}
-                  onChange={(e) => setTempHeading(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') onSaveHeading('summary');
-                    if (e.key === 'Escape') onCancelEdit();
-                  }}
-                  className="text-xl font-semibold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-                <button
-                  onClick={() => onSaveHeading('summary')}
-                  className="text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 p-1 rounded"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={onCancelEdit}
-                  className="text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 p-1 rounded"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {data.headings?.summary || 'Professional Summary'}
-                </h2>
-                <button
-                  onClick={() => onEditHeading('summary', data.headings?.summary || 'Professional Summary')}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              </>
-            )}
-          </div>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">Professional Summary</h2>
           <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{data.personalInfo.summary}</p>
         </div>
       )}
@@ -109,47 +69,7 @@ export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading
       {/* Experience */}
       {data.experience.length > 0 && (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            {editingHeading === 'experience' ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={tempHeading}
-                  onChange={(e) => setTempHeading(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') onSaveHeading('experience');
-                    if (e.key === 'Escape') onCancelEdit();
-                  }}
-                  className="text-xl font-semibold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-                <button
-                  onClick={() => onSaveHeading('experience')}
-                  className="text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 p-1 rounded"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={onCancelEdit}
-                  className="text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 p-1 rounded"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {data.headings?.experience || 'Professional Experience'}
-                </h2>
-                <button
-                  onClick={() => onEditHeading('experience', data.headings?.experience || 'Professional Experience')}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              </>
-            )}
-          </div>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Professional Experience</h2>
           <div className="space-y-4">
             {data.experience.map((exp) => (
               <div key={exp.id} className="border-l-2 border-blue-200 pl-4">
@@ -175,47 +95,7 @@ export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading
       {/* Education */}
       {data.education.length > 0 && (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            {editingHeading === 'education' ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={tempHeading}
-                  onChange={(e) => setTempHeading(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') onSaveHeading('education');
-                    if (e.key === 'Escape') onCancelEdit();
-                  }}
-                  className="text-xl font-semibold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-                <button
-                  onClick={() => onSaveHeading('education')}
-                  className="text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 p-1 rounded"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={onCancelEdit}
-                  className="text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 p-1 rounded"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {data.headings?.education || 'Education'}
-                </h2>
-                <button
-                  onClick={() => onEditHeading('education', data.headings?.education || 'Education')}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              </>
-            )}
-          </div>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Education</h2>
           <div className="space-y-3">
             {data.education.map((edu) => (
               <div key={edu.id} className="border-l-2 border-green-200 pl-4">
@@ -241,47 +121,7 @@ export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading
       {/* Skills */}
       {Object.keys(skillsByCategory).length > 0 && (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            {editingHeading === 'skills' ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={tempHeading}
-                  onChange={(e) => setTempHeading(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') onSaveHeading('skills');
-                    if (e.key === 'Escape') onCancelEdit();
-                  }}
-                  className="text-xl font-semibold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-                <button
-                  onClick={() => onSaveHeading('skills')}
-                  className="text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 p-1 rounded"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={onCancelEdit}
-                  className="text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 p-1 rounded"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {data.headings?.skills || 'Skills'}
-                </h2>
-                <button
-                  onClick={() => onEditHeading('skills', data.headings?.skills || 'Skills')}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              </>
-            )}
-          </div>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Skills</h2>
           <div className="space-y-3">
             {Object.entries(skillsByCategory).map(([category, skills]) => (
               <div key={category}>
@@ -313,47 +153,7 @@ export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading
       {/* Projects */}
       {data.projects.length > 0 && (
         <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            {editingHeading === 'projects' ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={tempHeading}
-                  onChange={(e) => setTempHeading(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') onSaveHeading('projects');
-                    if (e.key === 'Escape') onCancelEdit();
-                  }}
-                  className="text-xl font-semibold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-                <button
-                  onClick={() => onSaveHeading('projects')}
-                  className="text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 p-1 rounded"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={onCancelEdit}
-                  className="text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 p-1 rounded"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {data.headings?.projects || 'Projects'}
-                </h2>
-                <button
-                  onClick={() => onEditHeading('projects', data.headings?.projects || 'Projects')}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              </>
-            )}
-          </div>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Projects</h2>
           <div className="space-y-4">
             {data.projects.map((project) => (
               <div key={project.id} className="border-l-2 border-purple-200 pl-4">
@@ -379,67 +179,6 @@ export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading
           </div>
         </div>
       )}
-
-      {/* Custom Sections */}
-      {data.customSections && data.customSections.map((section) => (
-        <div key={section.id} className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            {editingHeading === `custom-${section.id}` ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={tempHeading}
-                  onChange={(e) => setTempHeading(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') onSaveHeading(`custom-${section.id}`);
-                    if (e.key === 'Escape') onCancelEdit();
-                  }}
-                  className="text-xl font-semibold bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  autoFocus
-                />
-                <button
-                  onClick={() => onSaveHeading(`custom-${section.id}`)}
-                  className="text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 p-1 rounded"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={onCancelEdit}
-                  className="text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 p-1 rounded"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {section.title}
-                </h2>
-                <button
-                  onClick={() => onEditHeading(`custom-${section.id}`, section.title)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </button>
-              </>
-            )}
-          </div>
-          <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            <p>{section.content}</p>
-            {section.link && (
-              <a
-                href={section.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mt-2"
-              >
-                <ExternalLink className="w-4 h-4" />
-                View More
-              </a>
-            )}
-          </div>
-        </div>
-      ))}
     </div>
   );
 };
