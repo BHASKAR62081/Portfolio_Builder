@@ -6,6 +6,7 @@ import { ExperienceSection } from '../components/ExperienceSection';
 import { EducationSection } from '../components/EducationSection';
 import { SkillsSection } from '../components/SkillsSection';
 import { ProjectsSection } from '../components/ProjectsSection';
+import { CustomSectionForm } from '../components/CustomSectionForm';
 import { ResumePreview } from '../components/ResumePreview';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { generatePDF } from '../utils/pdfGenerator';
@@ -26,7 +27,15 @@ const initialData = {
   experience: [],
   education: [],
   skills: [],
-  projects: []
+  projects: [],
+  customSections: [],
+  headings: {
+    summary: 'Professional Summary',
+    experience: 'Professional Experience',
+    education: 'Education',
+    skills: 'Skills',
+    projects: 'Projects'
+  }
 };
 
 const BuilderPage = () => {
@@ -40,6 +49,8 @@ const BuilderPage = () => {
   const [resumeTitle, setResumeTitle] = useState('Untitled Resume');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState('');
+  const [editingHeading, setEditingHeading] = useState(null);
+  const [tempHeading, setTempHeading] = useState('');
   const { showSuccess, showError } = useToast();
 
   // Get resume ID from URL params
@@ -211,6 +222,43 @@ const BuilderPage = () => {
     }
   };
 
+  const handleEditHeading = (headingKey, currentValue) => {
+    setEditingHeading(headingKey);
+    setTempHeading(currentValue);
+  };
+
+  const handleSaveHeading = (headingKey) => {
+    if (!tempHeading.trim()) return;
+    
+    if (headingKey.startsWith('custom-')) {
+      const sectionId = headingKey.replace('custom-', '');
+      setResumeData(prev => ({
+        ...prev,
+        customSections: prev.customSections.map(section =>
+          section.id === sectionId
+            ? { ...section, title: tempHeading.trim() }
+            : section
+        )
+      }));
+    } else {
+      setResumeData(prev => ({
+        ...prev,
+        headings: {
+          ...prev.headings,
+          [headingKey]: tempHeading.trim()
+        }
+      }));
+    }
+    
+    setEditingHeading(null);
+    setTempHeading('');
+  };
+
+  const handleCancelHeadingEdit = () => {
+    setEditingHeading(null);
+    setTempHeading('');
+  };
+
   const formatLastSaved = () => {
     if (!lastSaved) return 'Never';
     return lastSaved.toLocaleTimeString();
@@ -372,6 +420,18 @@ const BuilderPage = () => {
                   onChange={(data) => setResumeData(prev => ({ ...prev, projects: data }))}
                 />
               </SectionHeader>
+
+              {/* Custom Sections */}
+              <SectionHeader
+                title="Custom Sections"
+                isCollapsed={collapsedSections.customSections}
+                onToggle={() => toggleSection('customSections')}
+              >
+                <CustomSectionForm
+                  data={resumeData.customSections}
+                  onChange={(data) => setResumeData(prev => ({ ...prev, customSections: data }))}
+                />
+              </SectionHeader>
             </div>
           </div>
 
@@ -381,8 +441,16 @@ const BuilderPage = () => {
               <div className="bg-gray-100 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600">
                 <h3 className="text-lg font-medium text-gray-800 dark:text-white">Live Preview</h3>
               </div>
-              <div className="max-h-screen overflow-y-auto">
-                <ResumePreview data={resumeData} />
+              <div className="max-h-screen overflow-y-auto group">
+                <ResumePreview 
+                  data={resumeData}
+                  onEditHeading={handleEditHeading}
+                  editingHeading={editingHeading}
+                  tempHeading={tempHeading}
+                  onSaveHeading={handleSaveHeading}
+                  onCancelEdit={handleCancelHeadingEdit}
+                  setTempHeading={setTempHeading}
+                />
               </div>
             </div>
           </div>

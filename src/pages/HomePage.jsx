@@ -4,6 +4,7 @@ import { ArrowRight, FileText, Download, Users, Star, FolderOpen } from 'lucide-
 import { useAuth } from '../contexts/AuthContext';
 import { resumeAPI } from '../services/api';
 import Navbar from '../components/Navbar';
+import AnimatedGraphic from '../components/AnimatedGraphic';
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
@@ -84,6 +85,11 @@ const HomePage = () => {
               </Link>
             )}
           </div>
+        </div>
+
+        {/* Animated Graphic Section */}
+        <div className="mt-16 mb-16">
+          <AnimatedGraphic />
         </div>
 
         {/* Features Section */}
