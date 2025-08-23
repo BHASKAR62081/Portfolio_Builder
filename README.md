@@ -4,7 +4,7 @@ A modern, full-featured resume builder application built with React and designed
 
 ## Live link
 
-- https://portfolio-builder-eta-pied.vercel.app/
+- https://portfolio-builder-ykd1.vercel.app/
 
 ## Features
 
