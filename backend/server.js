@@ -43,8 +43,6 @@ const connectDB = async () => {
       maxPoolSize: 10, // Maintain up to 10 socket connections
       serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
       socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-      // bufferMaxEntries: 0, // Disable mongoose buffering
-      // bufferCommands: false, // Disable mongoose buffering
     };
 
     const conn = await mongoose.connect(process.env.MONGODB_URI, options);
@@ -80,10 +78,12 @@ connectDB();
 // Import routes
 const authRoutes = require('./routes/auth');
 const resumeRoutes = require('./routes/resumes');
+const aiRoutes = require('./routes/ai'); // <-- ADD THIS LINE
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
+app.use('/api/ai', aiRoutes); // <-- ADD THIS LINE
 
 // Health check endpoint with detailed MongoDB status
 app.get('/api/health', async (req, res) => {
@@ -117,7 +117,8 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/api/health',
       auth: '/api/auth',
-      resumes: '/api/resumes'
+      resumes: '/api/resumes',
+      ai: '/api/ai' // Added for clarity
     }
   });
 });

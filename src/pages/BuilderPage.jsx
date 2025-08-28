@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Save, Cloud, CloudOff, ArrowLeft, Edit2, Check, X } from 'lucide-react';
+import { Download, Save, Cloud, CloudOff, ArrowLeft, Edit2, Check, X, Sparkles, Bot } from 'lucide-react';
 import { SectionHeader } from '../components/SectionHeader';
 import { PersonalInfoSection } from '../components/PersonalInfoSection';
 import { ExperienceSection } from '../components/ExperienceSection';
@@ -8,21 +8,16 @@ import { SkillsSection } from '../components/SkillsSection';
 import { ProjectsSection } from '../components/ProjectsSection';
 import { CustomSectionForm } from '../components/CustomSectionForm';
 import { ResumePreview } from '../components/ResumePreview';
-import { useLocalStorage } from '../hooks/useLocalStorage';
 import { generatePDF } from '../utils/pdfGenerator';
 import { useToast } from '../contexts/ToastContext';
 import { resumeAPI } from '../services/api';
 import Navbar from '../components/Navbar';
+import Chatbot from '../components/Chatbot';
+import { useResume } from '../contexts/ResumeContext';
 
 const initialData = {
   personalInfo: {
-    fullName: '',
-    email: '',
-    phone: '',
-    location: '',
-    linkedin: '',
-    website: '',
-    summary: ''
+    fullName: '', email: '', phone: '', location: '', linkedin: '', website: '', summary: ''
   },
   experience: [],
   education: [],
@@ -30,16 +25,16 @@ const initialData = {
   projects: [],
   customSections: [],
   headings: {
-    summary: 'Professional Summary',
-    experience: 'Professional Experience',
-    education: 'Education',
-    skills: 'Skills',
-    projects: 'Projects'
+    summary: 'Professional Summary', experience: 'Professional Experience', education: 'Education', skills: 'Skills', projects: 'Projects'
   }
 };
 
 const BuilderPage = () => {
-  const [resumeData, setResumeData] = useLocalStorage('resumeData', initialData);
+  const { resumeData, setResumeData } = useResume(); 
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  // --- NEW: State to control the visibility of the floating chatbot icon ---
+  const [showFloatingChatbot, setShowFloatingChatbot] = useState(false);
+
   const [collapsedSections, setCollapsedSections] = useState({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,7 +48,25 @@ const BuilderPage = () => {
   const [tempHeading, setTempHeading] = useState('');
   const { showSuccess, showError } = useToast();
 
-  // Get resume ID from URL params
+  // --- NEW: Effect to handle scroll events for the floating icon ---
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show the floating button after scrolling down 200px
+      if (window.scrollY > 200) {
+        setShowFloatingChatbot(true);
+      } else {
+        setShowFloatingChatbot(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const resumeId = urlParams.get('resumeId');
@@ -61,13 +74,11 @@ const BuilderPage = () => {
       setCurrentResumeId(resumeId);
       loadSpecificResume(resumeId);
     } else {
-      // For new resumes, start with fresh data
       setResumeData(initialData);
       setResumeTitle('New Resume');
     }
   }, []);
 
-  // Monitor online status
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -81,7 +92,6 @@ const BuilderPage = () => {
     };
   }, []);
 
-  // Make resume data available globally for PDF generation
   useEffect(() => {
     window.currentResumeData = resumeData;
     return () => {
@@ -89,13 +99,18 @@ const BuilderPage = () => {
     };
   }, [resumeData]);
 
-  // Load specific resume by ID
   const loadSpecificResume = async (resumeId) => {
     if (isOnline) {
       try {
         const resume = await resumeAPI.getResume(resumeId);
         if (resume && resume.data) {
-          setResumeData(resume.data);
+          const completeData = {
+            ...initialData,
+            ...resume.data,
+            personalInfo: { ...initialData.personalInfo, ...resume.data.personalInfo },
+            headings: { ...initialData.headings, ...resume.data.headings },
+          };
+          setResumeData(completeData);
           setResumeTitle(resume.title || 'Untitled Resume');
           setLastSaved(new Date(resume.updatedAt));
         }
@@ -106,7 +121,6 @@ const BuilderPage = () => {
     }
   };
 
-  // Auto-save to cloud every 30 seconds if online
   useEffect(() => {
     if (!isOnline) return;
 
@@ -118,14 +132,13 @@ const BuilderPage = () => {
             data: resumeData
           });
         } else {
-          // For new resumes without ID, save to general resume data
           await resumeAPI.saveResumeData(resumeData);
         }
         setLastSaved(new Date());
       } catch (error) {
         console.error('Auto-save failed:', error);
       }
-    }, 30000); // 30 seconds
+    }, 30000);
 
     return () => clearInterval(autoSave);
   }, [resumeData, resumeTitle, currentResumeId, isOnline]);
@@ -140,7 +153,7 @@ const BuilderPage = () => {
   const handleDownloadPDF = async () => {
     setIsGenerating(true);
     try {
-      const fileName = `${resumeData.personalInfo.fullName || resumeTitle}.pdf`;
+      const fileName = `${(resumeData.personalInfo && resumeData.personalInfo.fullName) || resumeTitle}.pdf`;
       await generatePDF('resume-preview', fileName);
       showSuccess('PDF downloaded successfully!');
     } catch (error) {
@@ -156,19 +169,16 @@ const BuilderPage = () => {
     try {
       if (isOnline) {
         if (currentResumeId) {
-          // Update existing resume
           await resumeAPI.updateResume(currentResumeId, {
             title: resumeTitle,
             data: resumeData
           });
         } else {
-          // Create new resume
           const newResume = await resumeAPI.createResume({
             title: resumeTitle,
             data: resumeData
           });
           setCurrentResumeId(newResume.resume._id);
-          // Update URL to include the new resume ID
           window.history.replaceState({}, '', `/builder?resumeId=${newResume.resume._id}`);
         }
         setLastSaved(new Date());
@@ -185,18 +195,10 @@ const BuilderPage = () => {
   };
 
   const handleBackToProfile = () => {
-    try {
-      // Save current work before navigating
-      if (resumeData && Object.keys(resumeData).length > 0) {
-        localStorage.setItem('resumeData', JSON.stringify(resumeData));
-      }
-      window.location.href = '/profile';
-    } catch (error) {
-      console.error('Navigation error:', error);
-      showError('Failed to navigate back to profile');
-    }
+    localStorage.setItem('resumeData', JSON.stringify(resumeData));
+    window.location.href = '/profile';
   };
-
+  
   const handleEditTitle = () => {
     setTempTitle(resumeTitle);
     setIsEditingTitle(true);
@@ -264,11 +266,11 @@ const BuilderPage = () => {
     return lastSaved.toLocaleTimeString();
   };
 
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <Navbar />
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -292,44 +294,31 @@ const BuilderPage = () => {
                       placeholder="Resume Title"
                       autoFocus
                     />
-                    <button
-                      onClick={handleSaveTitle}
-                      className="p-1 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 rounded transition-colors"
-                    >
-                      <Check className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleCancelEdit}
-                      className="p-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <button onClick={handleSaveTitle} className="p-1 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 rounded transition-colors"><Check className="w-4 h-4" /></button>
+                    <button onClick={handleCancelEdit} className="p-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"><X className="w-4 h-4" /></button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{resumeTitle}</h1>
-                    <button
-                      onClick={handleEditTitle}
-                      className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
+                    <button onClick={handleEditTitle} className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"><Edit2 className="w-4 h-4" /></button>
                   </div>
                 )}
               </div>
               <div className="flex items-center gap-2 mt-1">
-                {isOnline ? (
-                  <Cloud className="w-4 h-4 text-green-600" />
-                ) : (
-                  <CloudOff className="w-4 h-4 text-red-600" />
-                )}
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {isOnline ? 'Online' : 'Offline'} • Last saved: {formatLastSaved()}
-                </span>
+                {isOnline ? (<Cloud className="w-4 h-4 text-green-600" />) : (<CloudOff className="w-4 h-4 text-red-600" />)}
+                <span className="text-sm text-gray-600 dark:text-gray-400">{isOnline ? 'Online' : 'Offline'} • Last saved: {formatLastSaved()}</span>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {/* --- MODIFIED: AI Assistant Button moved and restyled --- */}
+            <button 
+              onClick={() => setIsChatOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 font-semibold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md hover:from-purple-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
+            >
+              <Sparkles size={16} />
+              AI Assistant
+            </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
@@ -351,111 +340,46 @@ const BuilderPage = () => {
 
         {!isOnline && (
           <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-              You're currently offline. Changes are being saved locally and will sync when you're back online.
-            </p>
+            <p className="text-yellow-800 dark:text-yellow-200 text-sm">You're currently offline. Changes are being saved locally and will sync when you're back online.</p>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Panel - Form */}
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-              {/* Personal Information */}
-              <SectionHeader
-                title="Personal Information"
-                isCollapsed={collapsedSections.personal}
-                onToggle={() => toggleSection('personal')}
-              >
-                <PersonalInfoSection
-                  data={resumeData.personalInfo}
-                  onChange={(data) => setResumeData(prev => ({ ...prev, personalInfo: data }))}
-                />
-              </SectionHeader>
-
-              {/* Experience */}
-              <SectionHeader
-                title="Work Experience"
-                isCollapsed={collapsedSections.experience}
-                onToggle={() => toggleSection('experience')}
-              >
-                <ExperienceSection
-                  data={resumeData.experience}
-                  onChange={(data) => setResumeData(prev => ({ ...prev, experience: data }))}
-                />
-              </SectionHeader>
-
-              {/* Education */}
-              <SectionHeader
-                title="Education"
-                isCollapsed={collapsedSections.education}
-                onToggle={() => toggleSection('education')}
-              >
-                <EducationSection
-                  data={resumeData.education}
-                  onChange={(data) => setResumeData(prev => ({ ...prev, education: data }))}
-                />
-              </SectionHeader>
-
-              {/* Skills */}
-              <SectionHeader
-                title="Skills"
-                isCollapsed={collapsedSections.skills}
-                onToggle={() => toggleSection('skills')}
-              >
-                <SkillsSection
-                  data={resumeData.skills}
-                  onChange={(data) => setResumeData(prev => ({ ...prev, skills: data }))}
-                />
-              </SectionHeader>
-
-              {/* Projects */}
-              <SectionHeader
-                title="Projects"
-                isCollapsed={collapsedSections.projects}
-                onToggle={() => toggleSection('projects')}
-              >
-                <ProjectsSection
-                  data={resumeData.projects}
-                  onChange={(data) => setResumeData(prev => ({ ...prev, projects: data }))}
-                />
-              </SectionHeader>
-
-              {/* Custom Sections */}
-              <SectionHeader
-                title="Custom Sections"
-                isCollapsed={collapsedSections.customSections}
-                onToggle={() => toggleSection('customSections')}
-              >
-                <CustomSectionForm
-                  data={resumeData.customSections}
-                  onChange={(data) => setResumeData(prev => ({ ...prev, customSections: data }))}
-                />
-              </SectionHeader>
+              <SectionHeader title="Personal Information" isCollapsed={collapsedSections.personal} onToggle={() => toggleSection('personal')}><PersonalInfoSection data={resumeData.personalInfo} onChange={(data) => setResumeData(prev => ({ ...prev, personalInfo: data }))} /></SectionHeader>
+              <SectionHeader title="Work Experience" isCollapsed={collapsedSections.experience} onToggle={() => toggleSection('experience')}><ExperienceSection data={resumeData.experience} onChange={(data) => setResumeData(prev => ({ ...prev, experience: data }))} /></SectionHeader>
+              <SectionHeader title="Education" isCollapsed={collapsedSections.education} onToggle={() => toggleSection('education')}><EducationSection data={resumeData.education} onChange={(data) => setResumeData(prev => ({ ...prev, education: data }))} /></SectionHeader>
+              <SectionHeader title="Skills" isCollapsed={collapsedSections.skills} onToggle={() => toggleSection('skills')}><SkillsSection data={resumeData.skills} onChange={(data) => setResumeData(prev => ({ ...prev, skills: data }))} /></SectionHeader>
+              <SectionHeader title="Projects" isCollapsed={collapsedSections.projects} onToggle={() => toggleSection('projects')}><ProjectsSection data={resumeData.projects} onChange={(data) => setResumeData(prev => ({ ...prev, projects: data }))} /></SectionHeader>
+              <SectionHeader title="Custom Sections" isCollapsed={collapsedSections.customSections} onToggle={() => toggleSection('customSections')}><CustomSectionForm data={resumeData.customSections} onChange={(data) => setResumeData(prev => ({ ...prev, customSections: data }))} /></SectionHeader>
             </div>
           </div>
-
-          {/* Right Panel - Preview */}
           <div className="lg:sticky lg:top-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
               <div className="bg-gray-100 dark:bg-gray-700 px-4 py-3 border-b border-gray-200 dark:border-gray-600">
                 <h3 className="text-lg font-medium text-gray-800 dark:text-white">Live Preview</h3>
               </div>
               <div className="max-h-screen overflow-y-auto group">
-                <ResumePreview 
-                  data={resumeData}
-                  onEditHeading={handleEditHeading}
-                  editingHeading={editingHeading}
-                  tempHeading={tempHeading}
-                  onSaveHeading={handleSaveHeading}
-                  onCancelEdit={handleCancelHeadingEdit}
-                  setTempHeading={setTempHeading}
-                />
+                <ResumePreview data={resumeData} onEditHeading={handleEditHeading} editingHeading={editingHeading} tempHeading={tempHeading} onSaveHeading={handleSaveHeading} onCancelEdit={handleCancelHeadingEdit} setTempHeading={setTempHeading} />
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* --- NEW: Floating chatbot icon that appears on scroll --- */}
+      {showFloatingChatbot && !isChatOpen && (
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-8 right-8 z-40 p-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-full shadow-lg hover:scale-110 transition-transform"
+          aria-label="Open AI Assistant"
+        >
+          <Bot size={24} />
+        </button>
+      )}
+
+      {isChatOpen && <Chatbot onClose={() => setIsChatOpen(false)} />}
     </div>
   );
 };

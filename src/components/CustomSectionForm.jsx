@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 
-export const CustomSectionForm = ({ data, onChange }) => {
+export const CustomSectionForm = ({ data = [], onChange }) => {
   const addCustomSection = () => {
     const newSection = {
       id: Date.now().toString(),
@@ -35,7 +35,10 @@ export const CustomSectionForm = ({ data, onChange }) => {
       {data.map((section) => (
         <div key={section.id} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
           <div className="flex justify-between items-start mb-4">
-            <h4 className="text-md font-medium text-gray-800 dark:text-white">Custom Section</h4>
+            {/* --- FIX: Display the dynamic section title --- */}
+            <h4 className="text-md font-medium text-gray-800 dark:text-white">
+              {section.title || 'Custom Section'}
+            </h4>
             <button
               onClick={() => removeCustomSection(section.id)}
               className="p-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"

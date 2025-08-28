@@ -1,7 +1,9 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 
-export const ProjectsSection = ({ data, onChange }) => {
+// --- FIX: Add a default value to the data prop ---
+// If `data` is undefined, it will default to an empty array `[]`.
+export const ProjectsSection = ({ data = [], onChange }) => {
   const addProject = () => {
     const newProject = {
       id: Date.now().toString(),
@@ -11,6 +13,7 @@ export const ProjectsSection = ({ data, onChange }) => {
       link: '',
       github: ''
     };
+    // If data was undefined, it's now a new array with one item.
     onChange([...data, newProject]);
   };
 
@@ -34,6 +37,7 @@ export const ProjectsSection = ({ data, onChange }) => {
         Add Project
       </button>
 
+      {/* This .map() call is now safe because `data` will always be an array. */}
       {data.map((project) => (
         <div key={project.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
           <div className="flex justify-between items-start mb-4">

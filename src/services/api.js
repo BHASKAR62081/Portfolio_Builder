@@ -99,4 +99,15 @@ export const resumeAPI = {
   getResumeData: () => api.get('/resumes/data'),
 };
 
+// --- NEW AI API OBJECT ---
+export const aiAPI = {
+  /**
+   * Sends a prompt to the AI chat backend.
+   * @param {string} prompt The prompt to send to the AI.
+   * @returns {Promise<{response: string}>} A promise that resolves to the AI's response.
+   */
+  askAI: (prompt) => api.post('/ai/chat', { prompt }),
+};
+// --- END OF NEW CODE ---
+
 export default api;
