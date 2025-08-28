@@ -4,7 +4,6 @@ const ResumeContext = createContext();
 
 export const useResume = () => useContext(ResumeContext);
 
-// This is a simplified initial state. Yours will be more detailed.
 const initialState = {
   personalInfo: { name: '', email: '', phone: '' },
   experience: [{ jobTitle: '', company: '', description: '' }],

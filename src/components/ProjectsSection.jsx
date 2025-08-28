@@ -1,7 +1,6 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 
-// --- FIX: Add a default value to the data prop ---
 // If `data` is undefined, it will default to an empty array `[]`.
 export const ProjectsSection = ({ data = [], onChange }) => {
   const addProject = () => {

@@ -35,7 +35,6 @@ export const CustomSectionForm = ({ data = [], onChange }) => {
       {data.map((section) => (
         <div key={section.id} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
           <div className="flex justify-between items-start mb-4">
-            {/* --- FIX: Display the dynamic section title --- */}
             <h4 className="text-md font-medium text-gray-800 dark:text-white">
               {section.title || 'Custom Section'}
             </h4>

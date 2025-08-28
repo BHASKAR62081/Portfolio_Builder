@@ -108,6 +108,5 @@ export const aiAPI = {
    */
   askAI: (prompt) => api.post('/ai/chat', { prompt }),
 };
-// --- END OF NEW CODE ---
 
 export default api;

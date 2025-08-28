@@ -27,6 +27,7 @@ export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading
     return acc;
   }, {});
 
+  
   return (
     <div id="resume-preview" className="bg-white dark:bg-gray-800 p-8 shadow-lg min-h-full">
       {/* Header */}

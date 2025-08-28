@@ -311,7 +311,6 @@ const BuilderPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {/* --- MODIFIED: AI Assistant Button moved and restyled --- */}
             <button 
               onClick={() => setIsChatOpen(true)}
               className="flex items-center gap-2 px-4 py-2 font-semibold text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md hover:from-purple-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
