@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Linkedin, Globe, ExternalLink, Github, Edit2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Globe, ExternalLink, Github } from 'lucide-react';
 
 export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading, onSaveHeading, onCancelEdit, setTempHeading }) => {
   const {
