@@ -1,5 +1,6 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Linkedin, Globe, ExternalLink, Github } from 'lucide-react';
+// --- FIX: Add Edit2 to the import list ---
+import { Mail, Phone, MapPin, Linkedin, Globe, ExternalLink, Github, Edit2 } from 'lucide-react';
 
 export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading, onSaveHeading, onCancelEdit, setTempHeading }) => {
   const {
@@ -27,7 +28,6 @@ export const ResumePreview = ({ data, onEditHeading, editingHeading, tempHeading
     return acc;
   }, {});
 
-  
   return (
     <div id="resume-preview" className="bg-white dark:bg-gray-800 p-8 shadow-lg min-h-full">
       {/* Header */}
